@@ -1,0 +1,445 @@
+{
+  "name": "sharpkit",
+  "displayName": "SharpKit",
+  "description": "One-click launch for .NET projects and errors grouped by project in VS Code.",
+  "version": "0.0.1",
+  "publisher": "sharpkit",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Debuggers",
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "dotnet",
+    "csharp",
+    "c#",
+    ".net",
+    "run",
+    "debug"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/*.sln",
+    "workspaceContains:**/*.slnx",
+    "workspaceContains:**/*.csproj",
+    "onView:sharpkit.launchables",
+    "onView:sharpkit.problems",
+    "onView:sharpkit.migrations"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "SharpKit invokes the dotnet CLI on project files and is restricted in untrusted workspaces."
+    }
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sharpkit",
+          "title": "SharpKit",
+          "icon": "$(rocket)"
+        }
+      ]
+    },
+    "views": {
+      "sharpkit": [
+        {
+          "id": "sharpkit.launchables",
+          "name": "Launchable Projects",
+          "icon": "$(play)"
+        },
+        {
+          "id": "sharpkit.problems",
+          "name": "Problems by Project",
+          "icon": "$(warning)"
+        },
+        {
+          "id": "sharpkit.migrations",
+          "name": "EF Core Migrations",
+          "icon": "$(database)"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "sharpkit.refresh",
+        "title": "SharpKit: Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "sharpkit.run",
+        "title": "Run",
+        "icon": "$(play)"
+      },
+      {
+        "command": "sharpkit.debug",
+        "title": "Debug",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "sharpkit.watch",
+        "title": "Watch (dotnet watch run)",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "sharpkit.stop",
+        "title": "Stop",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "sharpkit.pause",
+        "title": "Pause",
+        "icon": "$(debug-pause)"
+      },
+      {
+        "command": "sharpkit.continue",
+        "title": "Continue",
+        "icon": "$(debug-continue)"
+      },
+      {
+        "command": "sharpkit.runTests",
+        "title": "Run Tests",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "sharpkit.debugTests",
+        "title": "Debug Tests",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "sharpkit.build",
+        "title": "Build",
+        "icon": "$(tools)"
+      },
+      {
+        "command": "sharpkit.rebuild",
+        "title": "Rebuild",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "sharpkit.clean",
+        "title": "Clean",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "sharpkit.restore",
+        "title": "Restore",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "sharpkit.attach",
+        "title": "SharpKit: Attach to .NET process",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "sharpkit.editLaunchSettings",
+        "title": "Edit launchSettings.json",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "sharpkit.openDiagnostic",
+        "title": "Open Diagnostic Location"
+      },
+      {
+        "command": "sharpkit.migrations.refresh",
+        "title": "Refresh EF projects",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "sharpkit.ef.addMigration",
+        "title": "Add Migration",
+        "icon": "$(add)"
+      },
+      {
+        "command": "sharpkit.ef.updateDatabase",
+        "title": "Update Database",
+        "icon": "$(arrow-up)"
+      },
+      {
+        "command": "sharpkit.ef.removeLastMigration",
+        "title": "Remove Last Migration",
+        "icon": "$(discard)"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "sharpkit.attach"
+        },
+        {
+          "command": "sharpkit.refresh"
+        },
+        {
+          "command": "sharpkit.migrations.refresh"
+        },
+        {
+          "command": "sharpkit.run",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.debug",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.watch",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.stop",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.pause",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.continue",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.runTests",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.debugTests",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.build",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.rebuild",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.clean",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.restore",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.editLaunchSettings",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.openDiagnostic",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.ef.addMigration",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.ef.updateDatabase",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.ef.removeLastMigration",
+          "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "sharpkit.refresh",
+          "when": "view == sharpkit.launchables || view == sharpkit.problems",
+          "group": "navigation@1"
+        },
+        {
+          "command": "sharpkit.attach",
+          "when": "view == sharpkit.launchables",
+          "group": "navigation@2"
+        },
+        {
+          "command": "sharpkit.migrations.refresh",
+          "when": "view == sharpkit.migrations",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "sharpkit.run",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:idle/",
+          "group": "inline@1"
+        },
+        {
+          "command": "sharpkit.debug",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:idle/",
+          "group": "inline@2"
+        },
+        {
+          "command": "sharpkit.watch",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:idle/",
+          "group": "inline@3"
+        },
+        {
+          "command": "sharpkit.stop",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:(running|debugging|paused|watching|testing|test:running|test:debugging|test:testing|test:paused)/",
+          "group": "inline@4"
+        },
+        {
+          "command": "sharpkit.pause",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:debugging/",
+          "group": "inline@1"
+        },
+        {
+          "command": "sharpkit.continue",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:paused/",
+          "group": "inline@1"
+        },
+        {
+          "command": "sharpkit.runTests",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:test:idle/",
+          "group": "inline@1"
+        },
+        {
+          "command": "sharpkit.debugTests",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:test:idle/",
+          "group": "inline@2"
+        },
+        {
+          "command": "sharpkit.build",
+          "when": "view == sharpkit.launchables && viewItem == 'solution'",
+          "group": "build@1"
+        },
+        {
+          "command": "sharpkit.rebuild",
+          "when": "view == sharpkit.launchables && viewItem == 'solution'",
+          "group": "build@2"
+        },
+        {
+          "command": "sharpkit.clean",
+          "when": "view == sharpkit.launchables && viewItem == 'solution'",
+          "group": "build@3"
+        },
+        {
+          "command": "sharpkit.restore",
+          "when": "view == sharpkit.launchables && viewItem == 'solution'",
+          "group": "build@4"
+        },
+        {
+          "command": "sharpkit.build",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:/",
+          "group": "build@1"
+        },
+        {
+          "command": "sharpkit.rebuild",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:/",
+          "group": "build@2"
+        },
+        {
+          "command": "sharpkit.clean",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:/",
+          "group": "build@3"
+        },
+        {
+          "command": "sharpkit.restore",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:/",
+          "group": "build@4"
+        },
+        {
+          "command": "sharpkit.editLaunchSettings",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:/",
+          "group": "edit@1"
+        },
+        {
+          "command": "sharpkit.ef.addMigration",
+          "when": "view == sharpkit.migrations && viewItem == 'dbcontext'",
+          "group": "inline@1"
+        },
+        {
+          "command": "sharpkit.ef.updateDatabase",
+          "when": "view == sharpkit.migrations && viewItem == 'dbcontext'",
+          "group": "inline@2"
+        },
+        {
+          "command": "sharpkit.ef.removeLastMigration",
+          "when": "view == sharpkit.migrations && viewItem == 'dbcontext'",
+          "group": "inline@3"
+        },
+        {
+          "command": "sharpkit.ef.addMigration",
+          "when": "view == sharpkit.migrations && viewItem == 'efProject'",
+          "group": "inline@1"
+        },
+        {
+          "command": "sharpkit.ef.updateDatabase",
+          "when": "view == sharpkit.migrations && viewItem == 'efProject'",
+          "group": "inline@2"
+        },
+        {
+          "command": "sharpkit.ef.removeLastMigration",
+          "when": "view == sharpkit.migrations && viewItem == 'efProject'",
+          "group": "inline@3"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "SharpKit",
+      "properties": {
+        "sharpkit.includeWarnings": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include warnings in the Problems by Project view."
+        },
+        "sharpkit.defaultLaunchProfile": {
+          "type": "string",
+          "default": "",
+          "description": "Preferred launchSettings.json profile name when multiple exist."
+        },
+        "sharpkit.suppressWarnings": {
+          "type": "array",
+          "default": ["CS1591"],
+          "description": "C# warning codes to suppress across SharpKit's dotnet invocations (build, run, watch, test). Values map to MSBuild NoWarn. Set to an empty array to disable.",
+          "items": { "type": "string" }
+        },
+        "sharpkit.preLaunch": {
+          "type": "object",
+          "default": {},
+          "description": "Per-project pre-launch hooks. Keyed by csproj path (absolute or workspace-relative). Value is an array of hooks executed sequentially before Run/Debug/Watch.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "command"],
+              "properties": {
+                "name": { "type": "string", "description": "Display name for the hook." },
+                "command": { "type": "string", "description": "Shell command to run." },
+                "cwd": { "type": "string", "description": "Working directory (defaults to the project directory)." },
+                "waitForExit": { "type": "boolean", "default": true, "description": "Block the launch until the hook exits." }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "compile": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.7",
+    "@types/node": "^20.12.12",
+    "@types/vscode": "^1.90.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "@typescript-eslint/parser": "^7.13.1",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.4.0",
+    "esbuild": "^0.21.5",
+    "eslint": "^8.57.0",
+    "mocha": "^10.4.0",
+    "typescript": "^5.4.5"
+  }
+}
