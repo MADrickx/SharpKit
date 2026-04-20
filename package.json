@@ -150,6 +150,36 @@
         "title": "Open Diagnostic Location"
       },
       {
+        "command": "sharpkit.problems.filter",
+        "title": "Filter Problems",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "sharpkit.problems.filterActive",
+        "title": "Filter Problems",
+        "icon": "$(filter-filled)"
+      },
+      {
+        "command": "sharpkit.problems.filterProject",
+        "title": "Filter This Project",
+        "icon": "$(filter)"
+      },
+      {
+        "command": "sharpkit.problems.filterProjectActive",
+        "title": "Filter This Project",
+        "icon": "$(filter-filled)"
+      },
+      {
+        "command": "sharpkit.problems.ignoreWarningCode",
+        "title": "Ignore This Warning Code Globally",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "sharpkit.problems.manageIgnoredWarnings",
+        "title": "SharpKit: Manage Ignored Warning Codes",
+        "icon": "$(list-filter)"
+      },
+      {
         "command": "sharpkit.migrations.refresh",
         "title": "Refresh EF projects",
         "icon": "$(refresh)"
@@ -238,6 +268,28 @@
           "when": "false"
         },
         {
+          "command": "sharpkit.problems.filter"
+        },
+        {
+          "command": "sharpkit.problems.filterActive",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.problems.filterProject",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.problems.filterProjectActive",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.problems.ignoreWarningCode",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.problems.manageIgnoredWarnings"
+        },
+        {
           "command": "sharpkit.ef.addMigration",
           "when": "false"
         },
@@ -260,6 +312,21 @@
           "command": "sharpkit.attach",
           "when": "view == sharpkit.launchables",
           "group": "navigation@2"
+        },
+        {
+          "command": "sharpkit.problems.filter",
+          "when": "view == sharpkit.problems && !sharpkit.problems.hasViewFilter",
+          "group": "navigation@2"
+        },
+        {
+          "command": "sharpkit.problems.filterActive",
+          "when": "view == sharpkit.problems && sharpkit.problems.hasViewFilter",
+          "group": "navigation@2"
+        },
+        {
+          "command": "sharpkit.problems.manageIgnoredWarnings",
+          "when": "view == sharpkit.problems",
+          "group": "navigation@3"
         },
         {
           "command": "sharpkit.migrations.refresh",
@@ -354,6 +421,21 @@
           "group": "edit@1"
         },
         {
+          "command": "sharpkit.problems.filterProject",
+          "when": "view == sharpkit.problems && viewItem =~ /^problemProject:.*:filter-off/",
+          "group": "inline@1"
+        },
+        {
+          "command": "sharpkit.problems.filterProjectActive",
+          "when": "view == sharpkit.problems && viewItem =~ /^problemProject:.*:filter-on/",
+          "group": "inline@1"
+        },
+        {
+          "command": "sharpkit.problems.ignoreWarningCode",
+          "when": "view == sharpkit.problems && viewItem =~ /^diagnostic:warning:/",
+          "group": "inline@1"
+        },
+        {
           "command": "sharpkit.ef.addMigration",
           "when": "view == sharpkit.migrations && viewItem == 'dbcontext'",
           "group": "inline@1"
@@ -392,6 +474,18 @@
           "type": "boolean",
           "default": true,
           "description": "Include warnings in the Problems by Project view."
+        },
+        "sharpkit.includeErrors": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include errors in the Problems by Project view."
+        },
+        "sharpkit.problems.ignoredWarningCodes": {
+          "type": "array",
+          "default": [],
+          "scope": "application",
+          "description": "Warning codes (e.g. CS1591) hidden from the Problems by Project view across all workspaces.",
+          "items": { "type": "string" }
         },
         "sharpkit.defaultLaunchProfile": {
           "type": "string",

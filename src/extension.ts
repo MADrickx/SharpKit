@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.window.registerTreeDataProvider("sharpkit.launchables", launchables),
   );
 
-  const problems = new ProblemsTreeProvider();
+  const problems = new ProblemsTreeProvider(context);
   context.subscriptions.push(problems);
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider("sharpkit.problems", problems),
@@ -138,6 +138,13 @@ export function activate(context: vscode.ExtensionContext): void {
         }
       },
     ),
+
+    vscode.commands.registerCommand("sharpkit.problems.filter", () => problems.filterView()),
+    vscode.commands.registerCommand("sharpkit.problems.filterActive", () => problems.filterView()),
+    vscode.commands.registerCommand("sharpkit.problems.filterProject", (node) => problems.filterProject(node)),
+    vscode.commands.registerCommand("sharpkit.problems.filterProjectActive", (node) => problems.filterProject(node)),
+    vscode.commands.registerCommand("sharpkit.problems.ignoreWarningCode", (node) => problems.ignoreWarningCode(node)),
+    vscode.commands.registerCommand("sharpkit.problems.manageIgnoredWarnings", () => problems.manageIgnoredWarnings()),
   );
 
   log.info("SharpKit activated");
