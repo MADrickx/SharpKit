@@ -2,7 +2,7 @@
   "name": "sharpkit",
   "displayName": "SharpKit",
   "description": "One-click launch for .NET projects and errors grouped by project in VS Code.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "ByteEatsBits",
   "license": "MIT",
   "repository": {
@@ -485,7 +485,9 @@
           "default": [],
           "scope": "application",
           "description": "Warning codes (e.g. CS1591) hidden from the Problems by Project view across all workspaces.",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
         "sharpkit.defaultLaunchProfile": {
           "type": "string",
@@ -494,9 +496,13 @@
         },
         "sharpkit.suppressWarnings": {
           "type": "array",
-          "default": ["CS1591"],
+          "default": [
+            "CS1591"
+          ],
           "description": "C# warning codes to suppress across SharpKit's dotnet invocations (build, run, watch, test). Values map to MSBuild NoWarn. Set to an empty array to disable.",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
         "sharpkit.preLaunch": {
           "type": "object",
@@ -506,12 +512,28 @@
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["name", "command"],
+              "required": [
+                "name",
+                "command"
+              ],
               "properties": {
-                "name": { "type": "string", "description": "Display name for the hook." },
-                "command": { "type": "string", "description": "Shell command to run." },
-                "cwd": { "type": "string", "description": "Working directory (defaults to the project directory)." },
-                "waitForExit": { "type": "boolean", "default": true, "description": "Block the launch until the hook exits." }
+                "name": {
+                  "type": "string",
+                  "description": "Display name for the hook."
+                },
+                "command": {
+                  "type": "string",
+                  "description": "Shell command to run."
+                },
+                "cwd": {
+                  "type": "string",
+                  "description": "Working directory (defaults to the project directory)."
+                },
+                "waitForExit": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Block the launch until the hook exits."
+                }
               }
             }
           }
