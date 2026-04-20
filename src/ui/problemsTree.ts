@@ -143,8 +143,10 @@ export class ProblemsTreeProvider implements vscode.TreeDataProvider<ProblemNode
     }
     const nextErrors = picked.some((p) => p.key === "errors");
     const nextWarnings = picked.some((p) => p.key === "warnings");
-    await cfg.update("includeErrors", nextErrors, vscode.ConfigurationTarget.Workspace);
-    await cfg.update("includeWarnings", nextWarnings, vscode.ConfigurationTarget.Workspace);
+    await Promise.all([
+      safeUpdateConfig(cfg, "includeErrors", nextErrors),
+      safeUpdateConfig(cfg, "includeWarnings", nextWarnings),
+    ]);
   }
 
   async filterProject(node: ProblemNode | undefined): Promise<void> {
@@ -501,6 +503,28 @@ function severityIcon(sev: vscode.DiagnosticSeverity): vscode.ThemeIcon {
     default:
       return new vscode.ThemeIcon("circle-small");
   }
+}
+
+async function safeUpdateConfig(
+  cfg: vscode.WorkspaceConfiguration,
+  key: string,
+  value: unknown,
+): Promise<void> {
+  const hasWorkspace = (vscode.workspace.workspaceFolders?.length ?? 0) > 0;
+  const targets: vscode.ConfigurationTarget[] = hasWorkspace
+    ? [vscode.ConfigurationTarget.Workspace, vscode.ConfigurationTarget.Global]
+    : [vscode.ConfigurationTarget.Global];
+  let lastErr: unknown;
+  for (const target of targets) {
+    try {
+      await cfg.update(key, value, target);
+      return;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+  void vscode.window.showWarningMessage(`SharpKit: could not save sharpkit.${key}: ${msg}`);
 }
 
 function diagnosticCode(d: vscode.Diagnostic): string | undefined {
