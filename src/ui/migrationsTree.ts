@@ -2,6 +2,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { EfProject, discoverEfProjects } from "../migrations/efDiscovery";
 import { discoverProjects } from "../solution/discovery";
+import { getCachedStartupProjectPath, SAME_AS_MIGRATION } from "../migrations/efStartupProject";
 
 export type MigrationNode = EfProjectNode | DbContextNode | EmptyNode;
 
@@ -27,7 +28,7 @@ export class MigrationsTreeProvider implements vscode.TreeDataProvider<Migration
   private efProjectsPromise: Promise<EfProject[]> | undefined;
   private readonly disposables: vscode.Disposable[] = [];
 
-  constructor() {
+  constructor(private readonly state: vscode.Memento) {
     const watcher = vscode.workspace.createFileSystemWatcher("**/*.{csproj,cs}");
     watcher.onDidCreate(() => this.refresh());
     watcher.onDidDelete(() => this.refresh());
@@ -88,8 +89,16 @@ export class MigrationsTreeProvider implements vscode.TreeDataProvider<Migration
       vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? "",
       node.ef.project.csprojPath,
     );
-    item.description = contextCount > 0 ? `${contextCount} DbContext${contextCount === 1 ? "" : "s"}` : rel;
-    item.tooltip = `${node.ef.project.csprojPath}\n${contextCount} DbContext(s) detected`;
+    const startup = describeStartup(node.ef, this.state);
+    const countLabel = contextCount > 0
+      ? `${contextCount} DbContext${contextCount === 1 ? "" : "s"}`
+      : rel;
+    item.description = startup ? `${countLabel} · startup: ${startup}` : countLabel;
+    item.tooltip = [
+      node.ef.project.csprojPath,
+      `${contextCount} DbContext(s) detected`,
+      startup ? `Startup project: ${startup}` : "Startup project: not set (will prompt)",
+    ].join("\n");
     item.iconPath = new vscode.ThemeIcon("database");
     item.contextValue = "efProject";
     item.resourceUri = vscode.Uri.file(node.ef.project.csprojPath);
@@ -116,4 +125,15 @@ export class MigrationsTreeProvider implements vscode.TreeDataProvider<Migration
     this.disposables.forEach((d) => d.dispose());
     this.changeEmitter.dispose();
   }
+}
+
+function describeStartup(ef: EfProject, state: vscode.Memento): string | undefined {
+  const cached = getCachedStartupProjectPath(ef, state);
+  if (!cached) {
+    return undefined;
+  }
+  if (cached === SAME_AS_MIGRATION) {
+    return `${ef.project.name} (self)`;
+  }
+  return path.basename(cached, ".csproj");
 }

@@ -198,6 +198,11 @@
         "command": "sharpkit.ef.removeLastMigration",
         "title": "Remove Last Migration",
         "icon": "$(discard)"
+      },
+      {
+        "command": "sharpkit.ef.changeStartupProject",
+        "title": "Change EF Startup Project",
+        "icon": "$(gear)"
       }
     ],
     "menus": {
@@ -299,6 +304,10 @@
         },
         {
           "command": "sharpkit.ef.removeLastMigration",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.ef.changeStartupProject",
           "when": "false"
         }
       ],
@@ -464,6 +473,16 @@
           "command": "sharpkit.ef.removeLastMigration",
           "when": "view == sharpkit.migrations && viewItem == 'efProject'",
           "group": "inline@3"
+        },
+        {
+          "command": "sharpkit.ef.changeStartupProject",
+          "when": "view == sharpkit.migrations && viewItem == 'efProject'",
+          "group": "inline@4"
+        },
+        {
+          "command": "sharpkit.ef.changeStartupProject",
+          "when": "view == sharpkit.migrations && viewItem == 'efProject'",
+          "group": "startup@1"
         }
       ]
     },
@@ -501,6 +520,14 @@
           ],
           "description": "C# warning codes to suppress across SharpKit's dotnet invocations (build, run, watch, test). Values map to MSBuild NoWarn. Set to an empty array to disable.",
           "items": {
+            "type": "string"
+          }
+        },
+        "sharpkit.ef.startupProjects": {
+          "type": "object",
+          "default": {},
+          "description": "Map of EF migration project → startup project used by `dotnet ef` commands. Keys are workspace-relative (or absolute) csproj paths for the project that contains the DbContext. Values are paths to the project EF should treat as the startup project (must have DI/connection string configured). Commit this to share the mapping with your team.",
+          "additionalProperties": {
             "type": "string"
           }
         },

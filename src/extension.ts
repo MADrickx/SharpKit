@@ -9,7 +9,13 @@ import { Solution } from "./solution/slnParser";
 import { build, rebuild, clean, restore, BuildTarget } from "./actions/build";
 import { attachToDotnetProcess } from "./launch/attach";
 import { openLaunchSettingsEditor } from "./ui/launchSettingsWebview";
-import { addMigration, updateDatabase, removeLastMigration, PartialEfTarget } from "./migrations/efCommands";
+import {
+  addMigration,
+  updateDatabase,
+  removeLastMigration,
+  changeStartupProject,
+  PartialEfTarget,
+} from "./migrations/efCommands";
 
 export function activate(context: vscode.ExtensionContext): void {
   initLogger(context);
@@ -30,7 +36,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.window.registerTreeDataProvider("sharpkit.problems", problems),
   );
 
-  const migrations = new MigrationsTreeProvider();
+  const migrations = new MigrationsTreeProvider(context.workspaceState);
   context.subscriptions.push(migrations);
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider("sharpkit.migrations", migrations),
@@ -109,20 +115,27 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("sharpkit.ef.addMigration", async (node: MigrationNode) => {
       const target = resolveEfTarget(node);
       if (target) {
-        await addMigration(target);
+        await addMigration(target, context.workspaceState);
         migrations.refresh();
       }
     }),
     vscode.commands.registerCommand("sharpkit.ef.updateDatabase", async (node: MigrationNode) => {
       const target = resolveEfTarget(node);
       if (target) {
-        await updateDatabase(target);
+        await updateDatabase(target, context.workspaceState);
       }
     }),
     vscode.commands.registerCommand("sharpkit.ef.removeLastMigration", async (node: MigrationNode) => {
       const target = resolveEfTarget(node);
       if (target) {
-        await removeLastMigration(target);
+        await removeLastMigration(target, context.workspaceState);
+        migrations.refresh();
+      }
+    }),
+    vscode.commands.registerCommand("sharpkit.ef.changeStartupProject", async (node: MigrationNode) => {
+      const target = resolveEfTarget(node);
+      if (target) {
+        await changeStartupProject(target, context.workspaceState);
         migrations.refresh();
       }
     }),
