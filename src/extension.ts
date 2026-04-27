@@ -1,3 +1,4 @@
+import * as path from "path";
 import * as vscode from "vscode";
 import { initLogger, log, showError } from "./services/logger";
 import { LaunchablesTreeProvider, LaunchableNode } from "./ui/launchablesTree";
@@ -102,7 +103,17 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("sharpkit.rebuild", (node: LaunchableNode) => runBuildAction(node, rebuild)),
     vscode.commands.registerCommand("sharpkit.clean", (node: LaunchableNode) => runBuildAction(node, clean)),
     vscode.commands.registerCommand("sharpkit.restore", (node: LaunchableNode) => runBuildAction(node, restore)),
-    vscode.commands.registerCommand("sharpkit.publish", (node: LaunchableNode) => runBuildAction(node, publish)),
+    vscode.commands.registerCommand("sharpkit.publish", async (node: LaunchableNode) => {
+      const target = resolveBuildTarget(node);
+      if (!target) {
+        return;
+      }
+      const outputDir = await pickPublishOutputDir(target, context.workspaceState);
+      if (outputDir === undefined) {
+        return;
+      }
+      await publish(target, outputDir || undefined);
+    }),
 
     vscode.commands.registerCommand("sharpkit.attach", () => attachToDotnetProcess()),
 
@@ -225,6 +236,163 @@ function preferredProfile(project: Project): LaunchProfile | undefined {
     }
   }
   return project.launchProfiles[0];
+}
+
+const PUBLISH_DIRS_KEY = "sharpkit.publish.dirs";
+const PUBLISH_HISTORY_LIMIT = 10;
+
+function publishTargetKey(target: BuildTarget): string {
+  return target.kind === "solution" ? `sln:${target.solution.path}` : `proj:${target.project.csprojPath}`;
+}
+
+function publishTargetCwd(target: BuildTarget): string {
+  return target.kind === "solution" ? target.solution.directory : target.project.directory;
+}
+
+function readPublishDirs(state: vscode.Memento, key: string): string[] {
+  const all = state.get<Record<string, string[]>>(PUBLISH_DIRS_KEY, {});
+  const list = all[key];
+  return Array.isArray(list) ? list.filter((d) => typeof d === "string" && d.length > 0) : [];
+}
+
+async function writePublishDirs(state: vscode.Memento, key: string, dirs: string[]): Promise<void> {
+  const all = state.get<Record<string, string[]>>(PUBLISH_DIRS_KEY, {});
+  const next = { ...all };
+  if (dirs.length === 0) {
+    delete next[key];
+  } else {
+    next[key] = dirs.slice(0, PUBLISH_HISTORY_LIMIT);
+  }
+  await state.update(PUBLISH_DIRS_KEY, next);
+}
+
+async function recordPublishDir(state: vscode.Memento, key: string, dir: string): Promise<void> {
+  const existing = readPublishDirs(state, key);
+  const without = existing.filter((d) => d !== dir);
+  await writePublishDirs(state, key, [dir, ...without]);
+}
+
+async function pickPublishOutputDir(
+  target: BuildTarget,
+  state: vscode.Memento,
+): Promise<string | undefined> {
+  const key = publishTargetKey(target);
+
+  return new Promise<string | undefined>((resolve) => {
+    type Item = vscode.QuickPickItem & {
+      action: "default" | "saved" | "choose";
+      dir?: string;
+    };
+    const removeButton: vscode.QuickInputButton = {
+      iconPath: new vscode.ThemeIcon("trash"),
+      tooltip: "Remove from saved destinations",
+    };
+
+    const qp = vscode.window.createQuickPick<Item>();
+    qp.title = "Publish destination";
+    qp.placeholder = "Where should dotnet publish output go?";
+    qp.matchOnDescription = true;
+    qp.ignoreFocusOut = false;
+
+    const buildItems = (): Item[] => {
+      const dirs = readPublishDirs(state, key);
+      const items: Item[] = [
+        {
+          label: "$(home) Default location",
+          description: "bin/<configuration>/<tfm>/publish",
+          action: "default",
+        },
+      ];
+      for (const dir of dirs) {
+        items.push({
+          label: `$(folder) ${prettyPath(dir)}`,
+          description: dir === dirs[0] ? "last used" : undefined,
+          action: "saved",
+          dir,
+          buttons: [removeButton],
+        });
+      }
+      items.push({
+        label: "$(folder-opened) Choose folder…",
+        action: "choose",
+      });
+      return items;
+    };
+
+    qp.items = buildItems();
+
+    let resolved = false;
+    const finish = (value: string | undefined) => {
+      if (resolved) {
+        return;
+      }
+      resolved = true;
+      qp.hide();
+      resolve(value);
+    };
+
+    qp.onDidTriggerItemButton(async (e) => {
+      if (e.button !== removeButton || e.item.action !== "saved" || !e.item.dir) {
+        return;
+      }
+      const remaining = readPublishDirs(state, key).filter((d) => d !== e.item.dir);
+      await writePublishDirs(state, key, remaining);
+      qp.items = buildItems();
+    });
+
+    qp.onDidAccept(async () => {
+      const picked = qp.activeItems[0];
+      if (!picked) {
+        return;
+      }
+      if (picked.action === "default") {
+        finish("");
+        return;
+      }
+      if (picked.action === "saved" && picked.dir) {
+        await recordPublishDir(state, key, picked.dir);
+        finish(picked.dir);
+        return;
+      }
+      qp.hide();
+      const lastDir = readPublishDirs(state, key)[0];
+      const selection = await vscode.window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        openLabel: "Publish here",
+        defaultUri: lastDir
+          ? vscode.Uri.file(lastDir)
+          : vscode.Uri.file(publishTargetCwd(target)),
+      });
+      if (!selection || selection.length === 0) {
+        finish(undefined);
+        return;
+      }
+      const chosen = selection[0].fsPath;
+      await recordPublishDir(state, key, chosen);
+      finish(chosen);
+    });
+
+    qp.onDidHide(() => {
+      qp.dispose();
+      finish(undefined);
+    });
+
+    qp.show();
+  });
+}
+
+function prettyPath(p: string): string {
+  const folders = vscode.workspace.workspaceFolders ?? [];
+  for (const folder of folders) {
+    const root = folder.uri.fsPath;
+    if (p === root || p.startsWith(root + path.sep)) {
+      const rel = path.relative(root, p);
+      return rel ? `./${rel}` : "./";
+    }
+  }
+  return p;
 }
 
 function resolveEfTarget(node: MigrationNode | undefined): PartialEfTarget | undefined {

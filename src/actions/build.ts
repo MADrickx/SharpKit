@@ -22,11 +22,15 @@ function targetCwd(target: BuildTarget): string {
   return target.kind === "solution" ? target.solution.directory : target.project.directory;
 }
 
-async function runDotnet(command: string, target: BuildTarget): Promise<number | undefined> {
+async function runDotnet(
+  command: string,
+  target: BuildTarget,
+  extraArgs: string[] = [],
+): Promise<number | undefined> {
   try {
     return await runDotnetTaskAndWait({
       name: `${capitalize(command)} ${targetName(target)}`,
-      args: [command, targetPath(target), ...getSuppressedWarningsArg()],
+      args: [command, targetPath(target), ...getSuppressedWarningsArg(), ...extraArgs],
       cwd: targetCwd(target),
       taskType: `sharpkit-${command}`,
       definition: { target: targetPath(target) },
@@ -49,8 +53,9 @@ export function restore(target: BuildTarget): Promise<number | undefined> {
   return runDotnet("restore", target);
 }
 
-export function publish(target: BuildTarget): Promise<number | undefined> {
-  return runDotnet("publish", target);
+export function publish(target: BuildTarget, outputDir?: string): Promise<number | undefined> {
+  const extra = outputDir ? ["-o", outputDir] : [];
+  return runDotnet("publish", target, extra);
 }
 
 export async function rebuild(target: BuildTarget): Promise<number | undefined> {
