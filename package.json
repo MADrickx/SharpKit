@@ -2,7 +2,7 @@
   "name": "sharpkit",
   "displayName": "SharpKit",
   "description": "One-click launch for .NET projects and errors grouped by project in VS Code.",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "ByteEatsBits",
   "license": "MIT",
   "repository": {
