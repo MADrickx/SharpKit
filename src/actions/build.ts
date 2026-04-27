@@ -49,6 +49,10 @@ export function restore(target: BuildTarget): Promise<number | undefined> {
   return runDotnet("restore", target);
 }
 
+export function publish(target: BuildTarget): Promise<number | undefined> {
+  return runDotnet("publish", target);
+}
+
 export async function rebuild(target: BuildTarget): Promise<number | undefined> {
   const cleanCode = await runDotnet("clean", target);
   if (cleanCode !== 0) {

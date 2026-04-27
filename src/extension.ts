@@ -6,7 +6,7 @@ import { MigrationsTreeProvider, MigrationNode } from "./ui/migrationsTree";
 import { SessionManager } from "./launch/session";
 import { Project, LaunchProfile } from "./solution/discovery";
 import { Solution } from "./solution/slnParser";
-import { build, rebuild, clean, restore, BuildTarget } from "./actions/build";
+import { build, rebuild, clean, restore, publish, BuildTarget } from "./actions/build";
 import { attachToDotnetProcess } from "./launch/attach";
 import { openLaunchSettingsEditor } from "./ui/launchSettingsWebview";
 import {
@@ -102,6 +102,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("sharpkit.rebuild", (node: LaunchableNode) => runBuildAction(node, rebuild)),
     vscode.commands.registerCommand("sharpkit.clean", (node: LaunchableNode) => runBuildAction(node, clean)),
     vscode.commands.registerCommand("sharpkit.restore", (node: LaunchableNode) => runBuildAction(node, restore)),
+    vscode.commands.registerCommand("sharpkit.publish", (node: LaunchableNode) => runBuildAction(node, publish)),
 
     vscode.commands.registerCommand("sharpkit.attach", () => attachToDotnetProcess()),
 

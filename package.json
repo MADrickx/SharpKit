@@ -136,6 +136,11 @@
         "icon": "$(cloud-download)"
       },
       {
+        "command": "sharpkit.publish",
+        "title": "Publish",
+        "icon": "$(cloud-upload)"
+      },
+      {
         "command": "sharpkit.attach",
         "title": "SharpKit: Attach to .NET process",
         "icon": "$(plug)"
@@ -262,6 +267,10 @@
         },
         {
           "command": "sharpkit.restore",
+          "when": "false"
+        },
+        {
+          "command": "sharpkit.publish",
           "when": "false"
         },
         {
@@ -405,6 +414,11 @@
           "group": "build@4"
         },
         {
+          "command": "sharpkit.publish",
+          "when": "view == sharpkit.launchables && viewItem == 'solution'",
+          "group": "build@5"
+        },
+        {
           "command": "sharpkit.build",
           "when": "view == sharpkit.launchables && viewItem =~ /^project:/",
           "group": "build@1"
@@ -423,6 +437,11 @@
           "command": "sharpkit.restore",
           "when": "view == sharpkit.launchables && viewItem =~ /^project:/",
           "group": "build@4"
+        },
+        {
+          "command": "sharpkit.publish",
+          "when": "view == sharpkit.launchables && viewItem =~ /^project:(idle|running|debugging|paused|watching)$/",
+          "group": "build@5"
         },
         {
           "command": "sharpkit.editLaunchSettings",
